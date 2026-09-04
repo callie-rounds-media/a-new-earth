@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A New Earth</title>
+<meta name="description" content="Callie and Blake's shared working board for a helicopter rhino dehorning project, filmed properly.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bone:#F4EEE3; --bone-2:#ECE4D5; --line:#D9CFBD; --ink:#1B1612; --ink-2:#4A4038; --ink-3:#7E7266;
+  --dust:#C27A33; --dust-soft:#F1DDC5; --sage:#6E8F6C; --sage-soft:#DCE6D6;
+  --ok:#5F8F5C; --warn:#B8862B; --bad:#B5533C;
+  --card:#FAF6EE; --shadow:0 1px 0 rgba(27,22,18,.06), 0 12px 30px -18px rgba(27,22,18,.35);
+  --radius:14px;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bone:#15110E; --bone-2:#1E1813; --line:#332A22; --ink:#F1EAE0; --ink-2:#C9BFB2; --ink-3:#8F8478;
+    --dust:#D89049; --dust-soft:#3A2816; --sage:#8FB08C; --sage-soft:#20301F;
+    --card:#1C1611; --shadow:0 1px 0 rgba(0,0,0,.3), 0 14px 34px -18px rgba(0,0,0,.7);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bone:#15110E; --bone-2:#1E1813; --line:#332A22; --ink:#F1EAE0; --ink-2:#C9BFB2; --ink-3:#8F8478;
+  --dust:#D89049; --dust-soft:#3A2816; --sage:#8FB08C; --sage-soft:#20301F;
+  --card:#1C1611; --shadow:0 1px 0 rgba(0,0,0,.3), 0 14px 34px -18px rgba(0,0,0,.7);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:var(--bone); color:var(--ink);
+  font-family:"IBM Plex Sans",system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif;
+  font-size:16px; line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+a{color:inherit}
+.serif{font-family:"Instrument Serif",Georgia,"Times New Roman",serif;font-weight:400}
+.mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace}
+
+/* top bar */
+.bar{
+  position:sticky; top:0; z-index:20;
+  background:color-mix(in srgb, var(--bone) 88%, transparent);
+  backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+}
+.bar-in{max-width:880px;margin:0 auto;padding:10px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.bar .name{font-size:20px;letter-spacing:.01em}
+.bar .spacer{flex:1}
+.who{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-2)}
+.who .pill{display:inline-flex;gap:0;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--card)}
+.who button{
+  appearance:none;border:0;background:transparent;color:var(--ink-2);padding:6px 12px;font:inherit;font-size:13px;cursor:pointer
+}
+.who button[aria-pressed="true"]{color:var(--ink);font-weight:600}
+.who button[data-who="callie"][aria-pressed="true"]{background:var(--dust-soft)}
+.who button[data-who="blake"][aria-pressed="true"]{background:var(--sage-soft)}
+.who button:focus-visible{outline:2px solid var(--dust);outline-offset:-2px}
+.sync{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-3)}
+.sync i{width:8px;height:8px;border-radius:50%;background:var(--warn);display:inline-block}
+.sync[data-state="ok"] i{background:var(--ok)}
+.sync[data-state="off"] i{background:var(--bad)}
+
+/* page */
+.wrap{max-width:880px;margin:0 auto;padding:36px 20px 90px}
+.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+h1{font-size:clamp(52px,9vw,96px);line-height:.95;margin:10px 0 18px;text-wrap:balance;letter-spacing:-.01em}
+h1 em{font-style:italic;color:var(--dust)}
+.lede{font-size:19px;max-width:62ch;color:var(--ink-2);margin:0}
+.hero{display:grid;grid-template-columns:1fr;gap:26px;align-items:end}
+@media (min-width:760px){.hero{grid-template-columns:1.25fr .75fr}}
+.hero-note{
+  border-left:3px solid var(--sage); padding:6px 0 6px 16px; color:var(--ink-2); font-size:15px; max-width:44ch;
+}
+.hero-note b{color:var(--ink);font-weight:600}
+
+section{margin-top:64px}
+h2{font-size:34px;line-height:1.1;margin:0 0 6px;text-wrap:balance}
+.sub{color:var(--ink-3);margin:0 0 22px;max-width:62ch}
+
+/* cards */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.card-pad{padding:20px 22px}
+textarea,input[type="text"]{
+  width:100%;border:1px solid var(--line);background:var(--bone);color:var(--ink);border-radius:10px;
+  padding:12px 14px;font:inherit;font-size:16px;line-height:1.5;resize:vertical;min-height:54px
+}
+textarea:focus,input:focus{outline:2px solid var(--dust);outline-offset:0;border-color:transparent}
+textarea::placeholder,input::placeholder{color:var(--ink-3)}
+.meta{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:8px;font-size:12px;color:var(--ink-3);min-height:18px}
+.by{display:inline-flex;align-items:center;gap:6px}
+.by i{width:8px;height:8px;border-radius:50%;display:inline-block;background:var(--ink-3)}
+.by[data-who="callie"] i{background:var(--dust)}
+.by[data-who="blake"] i{background:var(--sage)}
+
+/* facts */
+.facts{display:grid;grid-template-columns:1fr;gap:0;border-top:1px solid var(--line)}
+.fact{display:grid;grid-template-columns:150px 1fr;gap:18px;padding:16px 0;border-bottom:1px solid var(--line)}
+@media (max-width:600px){.fact{grid-template-columns:1fr;gap:6px}}
+.fact .k{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);padding-top:3px}
+.fact .v{margin:0;color:var(--ink-2)}
+.fact .v a{color:var(--ink-3);font-size:13px;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}
+
+/* questions */
+.progress{display:flex;align-items:center;gap:14px;margin:0 0 20px;flex-wrap:wrap}
+.track{flex:1;min-width:160px;height:8px;background:var(--bone-2);border-radius:999px;overflow:hidden;border:1px solid var(--line)}
+.track b{display:block;height:100%;width:0;background:var(--sage);border-radius:999px;transition:width .5s ease}
+.progress .n{font-size:13px;color:var(--ink-2)}
+.qs{display:grid;gap:14px}
+.q{padding:18px 20px 16px}
+.q .qh{display:flex;gap:14px;align-items:flex-start}
+.q .num{flex:none;width:34px;height:34px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;font-size:13px;color:var(--ink-2);background:var(--bone)}
+.q[data-done="1"] .num{background:var(--sage-soft);border-color:transparent;color:var(--ink)}
+.q .qt{font-size:19px;line-height:1.3;margin:2px 0 4px;text-wrap:balance}
+.q .hint{margin:0 0 12px;color:var(--ink-3);font-size:14.5px;max-width:62ch}
+.q textarea{min-height:64px}
+.owner{font-size:11px;letter-spacing:.12em;text-transform:uppercase;padding:3px 8px;border-radius:999px;background:var(--bone-2);color:var(--ink-2);margin-left:auto;flex:none}
+.owner[data-who="blake"]{background:var(--sage-soft)}
+.owner[data-who="callie"]{background:var(--dust-soft)}
+
+/* ideas */
+.add{display:flex;gap:10px;align-items:flex-start;margin-bottom:16px}
+.add textarea{min-height:54px}
+.btn{
+  appearance:none;border:1px solid var(--ink);background:var(--ink);color:var(--bone);border-radius:10px;padding:12px 16px;
+  font:inherit;font-size:15px;font-weight:500;cursor:pointer;white-space:nowrap
+}
+.btn:hover{opacity:.92}
+.btn:focus-visible{outline:2px solid var(--dust);outline-offset:2px}
+.btn.ghost{background:transparent;color:var(--ink-2);border-color:var(--line);padding:6px 10px;font-size:13px}
+.ideas{display:grid;grid-template-columns:1fr;gap:12px}
+@media (min-width:640px){.ideas{grid-template-columns:1fr 1fr}}
+.idea{padding:16px 18px;border-top:3px solid var(--ink-3);position:relative}
+.idea[data-who="callie"]{border-top-color:var(--dust)}
+.idea[data-who="blake"]{border-top-color:var(--sage)}
+.idea p{margin:0 0 10px;white-space:pre-wrap}
+.idea .meta{margin-top:0}
+.empty{color:var(--ink-3);font-style:italic;padding:8px 0}
+
+/* steps */
+.steps{display:grid;gap:8px}
+.step{display:flex;gap:12px;align-items:center;padding:10px 14px}
+.step input[type="checkbox"]{width:20px;height:20px;accent-color:var(--sage);flex:none;cursor:pointer}
+.step .t{flex:1}
+.step[data-done="1"] .t{color:var(--ink-3);text-decoration:line-through;text-decoration-color:var(--line)}
+.step .by{font-size:12px;color:var(--ink-3);flex:none}
+
+footer{margin-top:80px;padding-top:22px;border-top:1px solid var(--line);color:var(--ink-3);font-size:14px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+
+/* who prompt */
+.gate{position:fixed;inset:0;background:color-mix(in srgb, var(--ink) 55%, transparent);display:grid;place-items:center;z-index:50;padding:20px}
+.gate .card{max-width:420px;width:100%;padding:26px 26px 22px}
+.gate h3{font-size:34px;margin:0 0 6px;line-height:1.05}
+.gate p{margin:0 0 18px;color:var(--ink-2)}
+.gate .row{display:flex;gap:10px}
+.gate .row button{flex:1;padding:14px;border-radius:12px;border:1px solid var(--line);background:var(--bone);color:var(--ink);font:inherit;font-size:16px;cursor:pointer}
+.gate .row button[data-who="callie"]:hover{background:var(--dust-soft)}
+.gate .row button[data-who="blake"]:hover{background:var(--sage-soft)}
+.gate .row button:focus-visible{outline:2px solid var(--dust)}
+[hidden]{display:none!important}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <div class="bar-in">
+    <div class="serif name">A New Earth</div>
+    <div class="spacer"></div>
+    <div class="who">
+      <span>typing as</span>
+      <span class="pill" role="group" aria-label="who is typing">
+        <button type="button" data-who="callie" aria-pressed="false">callie</button>
+        <button type="button" data-who="blake" aria-pressed="false">blake</button>
+      </span>
+    </div>
+    <span class="sync" id="sync" data-state="wait"><i></i><span id="syncText">connecting</span></span>
+  </div>
+</div>
+
+<main class="wrap">
+
+  <header class="hero">
+    <div>
+      <div class="eyebrow mono">callie x blake · working board · nothing here is final</div>
+      <h1 class="serif">A New <em>Earth</em></h1>
+      <p class="lede">A helicopter rhino dehorning operation, filmed the way it deserves, paid for by a funder so the reserve keeps every cent for the rhinos. This page is where the two of us figure it out, at whatever pace the day allows.</p>
+    </div>
+    <aside class="hero-note">
+      <b>Built for a brain that is currently tracking eleven animals.</b> One question at a time, fragments welcome, close the tab whenever you like. It saves itself, so you never have to remember where you were.
+    </aside>
+  </header>
+
+  <section id="pitch">
+    <h2 class="serif">The idea, in one breath</h2>
+    <p class="sub">Callie's starting point. Edit it, argue with it, or leave it alone and skip to your questions below.</p>
+    <div class="card card-pad">
+      <textarea id="f-pitch" data-field="pitch" rows="6" placeholder="the pitch goes here"></textarea>
+      <div class="meta"><span class="by" data-who="" id="m-pitch"></span><span></span></div>
+    </div>
+  </section>
+
+  <section id="facts">
+    <h2 class="serif">What we already know</h2>
+    <p class="sub">The verified part, so neither of us has to go looking. Everything below has a source you can click.</p>
+    <div class="facts">
+      <div class="fact"><div class="k mono">the operation</div><p class="v">Rhinos are darted from a helicopter, the ground team covers the eyes and ears, a chainsaw or hand saw takes off roughly 90 to 93 percent of the horn, and the stump is smoothed and sealed with tar before the reversal drug. <a href="https://www.savetherhino.org/thorny-issues/de-horning/" target="_blank" rel="noopener">Save the Rhino</a></p></div>
+      <div class="fact"><div class="k mono">the pace</div><p class="v">Experienced teams have dehorned up to 22 rhinos in a single day, and one reserve did 42 over three days. A whole population can be done in one filmable window. <a href="https://africageographic.com/stories/rhino-dehorning-tip-of-the-iceberg/" target="_blank" rel="noopener">Africa Geographic</a> · <a href="https://blog.aspinallfoundation.org/entire-rhino-population-at-loskop-de-horned-for-their-protection" target="_blank" rel="noopener">Aspinall Foundation</a></p></div>
+      <div class="fact"><div class="k mono">the cycle</div><p class="v">Horn grows back, so reserves repeat the procedure every 18 to 24 months. That makes this a repeatable project, not a one-off. <a href="https://www.savetherhino.org/thorny-issues/de-horning/" target="_blank" rel="noopener">Save the Rhino</a></p></div>
+      <div class="fact"><div class="k mono">the science</div><p class="v">A June 2025 study in Science across eight Greater Kruger reserves found dehorning cut poaching by 78 percent while using about 1.2 percent of the anti-poaching budget. That is the line a funder can put in a press release. <a href="https://www.ox.ac.uk/news/2025-06-06-study-finds-dehorning-rhinos-drastically-reduces-poaching" target="_blank" rel="noopener">University of Oxford</a></p></div>
+      <div class="fact"><div class="k mono">the door</div><p class="v">Blake's October 2026 South Africa trip already lists rhino horn trimming at Manyoni Private Game Reserve with Zululand Conservation Trust and Wild Tomorrow. The relationship exists, we would be adding a helicopter, a crew, and a funder. <a href="https://thesosa.com/pages/southafrica2026" target="_blank" rel="noopener">The SOSA</a></p></div>
+    </div>
+  </section>
+
+  <section id="blake">
+    <h2 class="serif">Blake's part, the stress-free edition</h2>
+    <p class="sub">Eight questions. There is no deadline on this page, the rhinos are patient and the helicopter is not booked. A half answer today beats a perfect one never, and Callie chases anything you point her at.</p>
+    <div class="progress">
+      <div class="track"><b id="trackFill"></b></div>
+      <span class="n" id="progressText">0 of 8 answered, and that is completely fine</span>
+    </div>
+    <div class="qs" id="blakeQs"></div>
+  </section>
+
+  <section id="callie">
+    <h2 class="serif">Callie's part</h2>
+    <p class="sub">So it is not only Blake doing homework. Three things Callie owes this board.</p>
+    <div class="qs" id="callieQs"></div>
+  </section>
+
+  <section id="ideas">
+    <h2 class="serif">Ideas, loose ones</h2>
+    <p class="sub">Half-thoughts welcome. Nothing here is a commitment, it is a pile we can pick from later. Your card gets your colour so we know who to blame.</p>
+    <div class="add">
+      <textarea id="ideaInput" rows="2" placeholder="e.g. the vet explains the dart cocktail to camera while the rhino is down"></textarea>
+      <button class="btn" type="button" id="ideaAdd">add it</button>
+    </div>
+    <div class="ideas" id="ideaList"></div>
+  </section>
+
+  <section id="next">
+    <h2 class="serif">What happens next</h2>
+    <p class="sub">Tick things off when they are done. Add anything either of us should be doing. Small steps only, big ones get broken up.</p>
+    <div class="add">
+      <input type="text" id="stepInput" placeholder="e.g. callie emails the reserve for the real per-rhino cost">
+      <button class="btn" type="button" id="stepAdd">add step</button>
+    </div>
+    <div class="steps" id="stepList"></div>
+  </section>
+
+  <footer>
+    <span>made by callie, saved automatically, judged by nobody :)</span>
+    <span class="mono" id="lastSaved"></span>
+  </footer>
+</main>
+
+<div class="gate" id="gate" hidden>
+  <div class="card">
+    <h3 class="serif">Who is typing?</h3>
+    <p>So your notes get your colour. You can switch at the top of the page any time, no login, no password, no stress.</p>
+    <div class="row">
+      <button type="button" data-who="callie">I'm Callie</button>
+      <button type="button" data-who="blake">I'm Blake</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  // ---------- config ----------
+  const API = 'https://a-new-earth-api.beccacollins333.workers.dev';
+  const BOARD = 'rhino-anewearth-7k2m9qx4';
+  const POLL_MS = 4000;
+
+  const DEFAULT_PITCH = "We fund and film a full rhino dehorning operation on a reserve you trust. Helicopter darting, the vet team, the chainsaw, the rhino walking off with its horn gone and its odds changed. A charity funder I am in talks with covers the real costs of the operation plus your crew, and in return they get the footage for their own channels. Neither of us has to post a thing on our own pages. If it turns out captivating, I might run it as a trial reel, and you can do the same or not. Working title: A New Earth.";
+
+  const BLAKE_QS = [
+    { id:'b1', q:'Which reserve and which partner would you run this through?', hint:'Manyoni with Zululand Conservation Trust, or somewhere you trust more. A name is enough, Callie does the rest.' },
+    { id:'b2', q:'How many rhinos there are due for a dehorn, and roughly when?', hint:'A range is fine. "About thirty, early next year" is a perfect answer.' },
+    { id:'b3', q:'What does the reserve actually pay per rhino, with no markup?', hint:'Helicopter time, vet, drugs, DNA kit, tar. If you do not know, tell me who to ask and I will chase it so you never have to.' },
+    { id:'b4', q:'Can a crew film during the operation, and who signs off on that?', hint:'Yes, no, or "ask so-and-so". All three are useful.' },
+    { id:'b5', q:'Your team’s hard costs for a shoot like this', hint:'Videographer, photographer, post-production, flights, beds. Real costs only for now. What everyone earns on top gets built together afterwards, and that is the fun part.' },
+    { id:'b6', q:'When could this realistically happen?', hint:'Your October trip, a dedicated trip, or a window next year. Vague is allowed.' },
+    { id:'b7', q:'Are you and your crew okay with the funder running the footage on their own channels?', hint:'Neither of us has to post on our own pages. If it is good, either of us can run it as a trial, or not.' },
+    { id:'b8', q:'Anything that would make this a no for you?', hint:'Say it now, stress-free, and we design around it instead of discovering it later.' },
+  ];
+  const CALLIE_QS = [
+    { id:'c1', q:'Where the funder conversation is right now', hint:'Who, what they said, what they want to see next.' },
+    { id:'c2', q:'What Callie brings to the shoot', hint:'Aerial and drone work, a second body on the ground, the trial reel option, the local coordination.' },
+    { id:'c3', q:'When Callie can be in South Africa', hint:'Real windows, not hopes.' },
+  ];
+
+  // ---------- state ----------
+  let state = { fields:{}, ideas:{}, steps:{} };
+  let who = null;
+  let pending = [];
+  let saveTimer = null;
+  let focused = null;
+  let online = false;
+
+  const $ = (s, r=document) => r.querySelector(s);
+  const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
+  const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+  const now = () => new Date().toISOString();
+  const esc = (s) => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const ago = (iso) => {
+    if (!iso) return '';
+    const d = (Date.now() - Date.parse(iso)) / 1000;
+    if (d < 60) return 'just now';
+    if (d < 3600) return Math.floor(d/60) + ' min ago';
+    if (d < 86400) return Math.floor(d/3600) + ' h ago';
+    return Math.floor(d/86400) + ' d ago';
+  };
+  const lsGet = (k) => { try { return localStorage.getItem(k); } catch { return null; } };
+  const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch {} };
+
+  // ---------- identity ----------
+  function setWho(w) {
+    who = w;
+    lsSet('ane-who', w);
+    $$('.who button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.who === w)));
+    $('#gate').hidden = true;
+  }
+  $$('.who button, .gate button').forEach(b => b.addEventListener('click', () => setWho(b.dataset.who)));
+  const savedWho = lsGet('ane-who');
+  if (savedWho === 'callie' || savedWho === 'blake') setWho(savedWho); else $('#gate').hidden = false;
+
+  // ---------- sync ----------
+  function setSync(s, text) {
+    const el = $('#sync'); el.dataset.state = s; $('#syncText').textContent = text;
+  }
+  function queue(op) {
+    op.by = who || 'someone'; op.at = now();
+    pending.push(op);
+    applyLocal(op);
+    render();
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(flush, 600);
+  }
+  function applyLocal(op) {
+    const at = op.at, by = op.by;
+    if (op.t === 'field') state.fields[op.id] = { value: op.value, by, at };
+    if (op.t === 'idea') { const c = state.ideas[op.id]; state.ideas[op.id] = { text: op.text, by: c ? c.by : by, at: c ? c.at : at, edited: c ? at : null }; }
+    if (op.t === 'idea_del') delete state.ideas[op.id];
+    if (op.t === 'step') { const c = state.steps[op.id]; state.steps[op.id] = { text: op.text, done: !!op.done, by: c ? c.by : by, at: c ? c.at : at, doneBy: op.done ? by : null }; }
+    if (op.t === 'step_del') delete state.steps[op.id];
+    lsSet('ane-cache', JSON.stringify(state));
+  }
+  async function flush() {
+    if (!pending.length) return;
+    const ops = pending; pending = [];
+    try {
+      const r = await fetch(`${API}/${BOARD}`, { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({ ops }) });
+      if (!r.ok) throw new Error('save failed');
+      adopt(await r.json());
+      setSync('ok', 'saved');
+    } catch {
+      pending = ops.concat(pending);
+      setSync('off', 'not syncing, will retry');
+      setTimeout(flush, 5000);
+    }
+  }
+  async function poll() {
+    try {
+      const r = await fetch(`${API}/${BOARD}`, { cache:'no-store' });
+      if (!r.ok) throw new Error();
+      adopt(await r.json());
+      if (!pending.length) setSync('ok', online ? 'live' : 'live');
+      online = true;
+    } catch {
+      online = false;
+      setSync('off', 'offline, showing last copy');
+    }
+  }
+  function adopt(remote) {
+    if (!remote || !remote.fields) return;
+    // keep whatever is being typed right now
+    const keep = focused ? { id: focused, value: $(`[data-field="${focused}"]`)?.value } : null;
+    state = { fields: remote.fields || {}, ideas: remote.ideas || {}, steps: remote.steps || {} };
+    if (keep && state.fields[keep.id] && state.fields[keep.id].value !== keep.value) {
+      state.fields[keep.id] = { ...state.fields[keep.id], value: keep.value };
+    }
+    lsSet('ane-cache', JSON.stringify(state));
+    render();
+    if (remote.updated) $('#lastSaved').textContent = 'last change ' + ago(remote.updated);
+  }
+
+  // ---------- build ----------
+  function qCard(def, owner) {
+    return `<article class="card q" data-done="0" data-q="${def.id}">
+      <div class="qh">
+        <div class="num mono">${def.id.slice(1)}</div>
+        <div style="flex:1">
+          <h3 class="qt">${esc(def.q)}</h3>
+          <p class="hint">${esc(def.hint)}</p>
+          <textarea data-field="${def.id}" rows="2" placeholder="type a fragment, it saves itself"></textarea>
+          <div class="meta"><span class="by" id="m-${def.id}" data-who=""></span><span></span></div>
+        </div>
+        <span class="owner" data-who="${owner}">${owner}</span>
+      </div>
+    </article>`;
+  }
+  $('#blakeQs').innerHTML = BLAKE_QS.map(d => qCard(d, 'blake')).join('');
+  $('#callieQs').innerHTML = CALLIE_QS.map(d => qCard(d, 'callie')).join('');
+
+  // field wiring
+  $$('textarea[data-field]').forEach(t => {
+    t.addEventListener('focus', () => { focused = t.dataset.field; });
+    t.addEventListener('blur', () => { if (focused === t.dataset.field) focused = null; });
+    t.addEventListener('input', () => {
+      autosize(t);
+      queue({ t:'field', id: t.dataset.field, value: t.value });
+    });
+  });
+  function autosize(t) { t.style.height = 'auto'; t.style.height = Math.max(54, t.scrollHeight + 2) + 'px'; }
+
+  // ideas
+  $('#ideaAdd').addEventListener('click', () => {
+    const v = $('#ideaInput').value.trim(); if (!v) return;
+    queue({ t:'idea', id: uid(), text: v }); $('#ideaInput').value = '';
+  });
+  $('#ideaInput').addEventListener('keydown', e => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') $('#ideaAdd').click(); });
+  $('#ideaList').addEventListener('click', e => {
+    const b = e.target.closest('[data-del]'); if (!b) return;
+    queue({ t:'idea_del', id: b.dataset.del });
+  });
+
+  // steps
+  $('#stepAdd').addEventListener('click', () => {
+    const v = $('#stepInput').value.trim(); if (!v) return;
+    queue({ t:'step', id: uid(), text: v, done:false }); $('#stepInput').value = '';
+  });
+  $('#stepInput').addEventListener('keydown', e => { if (e.key === 'Enter') $('#stepAdd').click(); });
+  $('#stepList').addEventListener('change', e => {
+    const c = e.target.closest('input[type="checkbox"]'); if (!c) return;
+    const s = state.steps[c.dataset.step]; if (!s) return;
+    queue({ t:'step', id: c.dataset.step, text: s.text, done: c.checked });
+  });
+  $('#stepList').addEventListener('click', e => {
+    const b = e.target.closest('[data-del]'); if (!b) return;
+    queue({ t:'step_del', id: b.dataset.del });
+  });
+
+  // ---------- render ----------
+  const PROGRESS_LINES = [
+    '0 of 8 answered, and that is completely fine',
+    '1 of 8. Look at you, already ahead of schedule',
+    '2 of 8. The rhinos have noticed and they approve',
+    '3 of 8. Feel free to walk away now, it will still be here',
+    '4 of 8. Halfway, which in this house counts as done',
+    '5 of 8. Honestly more than Callie expected this week',
+    '6 of 8. The helicopter pilot is starting to believe',
+    '7 of 8. One left, and it is the easy one',
+    '8 of 8. Board complete. Go outside, find an animal',
+  ];
+  function render() {
+    // fields
+    for (const [id, f] of Object.entries(state.fields)) {
+      const t = $(`[data-field="${id}"]`); if (!t) continue;
+      if (focused !== id && t.value !== f.value) { t.value = f.value; autosize(t); }
+      const m = $(`#m-${id}`); if (m) { m.dataset.who = f.by || ''; m.innerHTML = f.value ? `<i></i>${esc(f.by || 'someone')} · ${ago(f.at)}` : ''; }
+      const card = t.closest('.q'); if (card) card.dataset.done = f.value.trim() ? '1' : '0';
+    }
+    if (!state.fields.pitch) { const t = $('#f-pitch'); if (t && !t.value) { t.value = DEFAULT_PITCH; autosize(t); } }
+    // progress
+    const done = BLAKE_QS.filter(d => (state.fields[d.id]?.value || '').trim()).length;
+    $('#trackFill').style.width = (done / BLAKE_QS.length * 100) + '%';
+    $('#progressText').textContent = PROGRESS_LINES[done];
+    // ideas
+    const ideas = Object.entries(state.ideas).sort((a,b) => a[1].at < b[1].at ? 1 : -1);
+    $('#ideaList').innerHTML = ideas.length ? ideas.map(([id, i]) => `
+      <article class="card idea" data-who="${esc(i.by)}">
+        <p>${esc(i.text)}</p>
+        <div class="meta"><span class="by" data-who="${esc(i.by)}"><i></i>${esc(i.by)} · ${ago(i.at)}</span>
+        ${i.by === who ? `<button class="btn ghost" type="button" data-del="${id}">remove</button>` : '<span></span>'}</div>
+      </article>`).join('') : '<p class="empty">Nothing here yet. The first idea is always the worst one, so get it out of the way.</p>';
+    // steps
+    const steps = Object.entries(state.steps).sort((a,b) => (a[1].done - b[1].done) || (a[1].at < b[1].at ? -1 : 1));
+    $('#stepList').innerHTML = steps.length ? steps.map(([id, s]) => `
+      <div class="card step" data-done="${s.done ? 1 : 0}">
+        <input type="checkbox" data-step="${id}" ${s.done ? 'checked' : ''} aria-label="done">
+        <span class="t">${esc(s.text)}</span>
+        <span class="by" data-who="${esc(s.done && s.doneBy ? s.doneBy : s.by)}"><i></i>${s.done && s.doneBy ? 'done by ' + esc(s.doneBy) : 'added by ' + esc(s.by)}</span>
+        <button class="btn ghost" type="button" data-del="${id}" aria-label="remove step">×</button>
+      </div>`).join('') : '<p class="empty">No steps yet. Add one small enough to finish before your coffee goes cold.</p>';
+  }
+
+  // ---------- boot ----------
+  try { const c = lsGet('ane-cache'); if (c) state = Object.assign({ fields:{}, ideas:{}, steps:{} }, JSON.parse(c)); } catch {}
+  render();
+  $$('textarea[data-field]').forEach(autosize);
+  poll();
+  setInterval(() => { if (document.visibilityState === 'visible') poll(); }, POLL_MS);
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') poll(); });
+})();
+</script>
+</body>
+</html>
