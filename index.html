@@ -151,6 +151,12 @@ textarea::placeholder,input::placeholder{color:var(--ink-3)}
 .step[data-done="1"] .t{color:var(--ink-3);text-decoration:line-through;text-decoration-color:var(--line)}
 .step .by{font-size:12px;color:var(--ink-3);flex:none}
 
+.send{margin-top:18px;display:grid;grid-template-columns:1fr auto;gap:18px;align-items:center}
+@media (max-width:600px){.send{grid-template-columns:1fr}}
+.sendmsg{grid-column:1/-1;margin:0;font-size:14px;color:var(--ink-2);min-height:0}
+.sendmsg:empty{display:none}
+.sendmsg[data-state="ok"]{color:var(--ok)}
+.sendmsg[data-state="bad"]{color:var(--bad)}
 footer{margin-top:80px;padding-top:22px;border-top:1px solid var(--line);color:var(--ink-3);font-size:14px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
 
 /* who prompt */
@@ -180,7 +186,7 @@ footer{margin-top:80px;padding-top:22px;border-top:1px solid var(--line);color:v
         <button type="button" data-who="blake" aria-pressed="false">blake</button>
       </span>
     </div>
-    <span class="sync" id="sync" data-state="wait"><i></i><span id="syncText">connecting</span></span>
+    <span class="sync" id="sync" data-state="ok"><i></i><span id="syncText">saved on this device</span></span>
   </div>
 </div>
 
@@ -193,7 +199,7 @@ footer{margin-top:80px;padding-top:22px;border-top:1px solid var(--line);color:v
       <p class="lede">A helicopter rhino dehorning operation, filmed the way it deserves, paid for by a funder so the reserve keeps every cent for the rhinos. This page is where the two of us figure it out, at whatever pace the day allows.</p>
     </div>
     <aside class="hero-note">
-      <b>Built for a brain that is currently tracking eleven animals.</b> One question at a time, fragments welcome, close the tab whenever you like. It saves itself, so you never have to remember where you were.
+      <b>Built for a brain that is currently tracking eleven animals.</b> One question at a time, fragments welcome, close the tab whenever you like. It saves itself on your device, and when you feel like it one button sends the lot to Callie. No account, no login.
     </aside>
   </header>
 
@@ -226,6 +232,14 @@ footer{margin-top:80px;padding-top:22px;border-top:1px solid var(--line);color:v
       <span class="n" id="progressText">0 of 8 answered, and that is completely fine</span>
     </div>
     <div class="qs" id="blakeQs"></div>
+    <div class="send card card-pad" id="sendBox">
+      <div>
+        <h3 class="serif" style="font-size:26px;margin:0 0 4px">Done for now? Send it to Callie</h3>
+        <p class="sub" style="margin:0">Sends whatever you have typed, half answers included. You can press it again later with more, nothing gets lost and nobody is keeping score.</p>
+      </div>
+      <button class="btn" type="button" id="sendBtn">send to callie</button>
+      <p class="sendmsg" id="sendMsg" aria-live="polite"></p>
+    </div>
   </section>
 
   <section id="callie">
@@ -236,7 +250,7 @@ footer{margin-top:80px;padding-top:22px;border-top:1px solid var(--line);color:v
 
   <section id="ideas">
     <h2 class="serif">Ideas, loose ones</h2>
-    <p class="sub">Half-thoughts welcome. Nothing here is a commitment, it is a pile we can pick from later. Your card gets your colour so we know who to blame.</p>
+    <p class="sub">Half-thoughts welcome. Nothing here is a commitment, it is a pile we can pick from later. Ideas travel with your answers when you press send.</p>
     <div class="add">
       <textarea id="ideaInput" rows="2" placeholder="e.g. the vet explains the dart cocktail to camera while the rhino is down"></textarea>
       <button class="btn" type="button" id="ideaAdd">add it</button>
@@ -274,9 +288,7 @@ footer{margin-top:80px;padding-top:22px;border-top:1px solid var(--line);color:v
 <script>
 (() => {
   // ---------- config ----------
-  const API = 'https://a-new-earth-api.beccacollins333.workers.dev';
-  const BOARD = 'rhino-anewearth-7k2m9qx4';
-  const POLL_MS = 4000;
+  const SEND_URL = 'https://formsubmit.co/ajax/fe9ebf6cf1fe98cca88fec84b7126589';
 
   const DEFAULT_PITCH = "We fund and film a full rhino dehorning operation on a reserve you trust. Helicopter darting, the vet team, the chainsaw, the rhino walking off with its horn gone and its odds changed. A charity funder I am in talks with covers the real costs of the operation plus your crew, and in return they get the footage for their own channels. Neither of us has to post a thing on our own pages. If it turns out captivating, I might run it as a trial reel, and you can do the same or not. Working title: A New Earth.";
 
@@ -299,10 +311,7 @@ footer{margin-top:80px;padding-top:22px;border-top:1px solid var(--line);color:v
   // ---------- state ----------
   let state = { fields:{}, ideas:{}, steps:{} };
   let who = null;
-  let pending = [];
-  let saveTimer = null;
   let focused = null;
-  let online = false;
 
   const $ = (s, r=document) => r.querySelector(s);
   const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
@@ -331,17 +340,16 @@ footer{margin-top:80px;padding-top:22px;border-top:1px solid var(--line);color:v
   const savedWho = lsGet('ane-who');
   if (savedWho === 'callie' || savedWho === 'blake') setWho(savedWho); else $('#gate').hidden = false;
 
-  // ---------- sync ----------
+  // ---------- local save + send ----------
   function setSync(s, text) {
     const el = $('#sync'); el.dataset.state = s; $('#syncText').textContent = text;
   }
   function queue(op) {
     op.by = who || 'someone'; op.at = now();
-    pending.push(op);
     applyLocal(op);
     render();
-    clearTimeout(saveTimer);
-    saveTimer = setTimeout(flush, 600);
+    setSync('ok', 'saved on this device');
+    $('#lastSaved').textContent = 'last change ' + ago(op.at);
   }
   function applyLocal(op) {
     const at = op.at, by = op.by;
@@ -352,44 +360,51 @@ footer{margin-top:80px;padding-top:22px;border-top:1px solid var(--line);color:v
     if (op.t === 'step_del') delete state.steps[op.id];
     lsSet('ane-cache', JSON.stringify(state));
   }
-  async function flush() {
-    if (!pending.length) return;
-    const ops = pending; pending = [];
+
+  function buildPayload() {
+    const p = {
+      _subject: `A New Earth: answers from ${who || 'someone'}`,
+      _template: 'box',
+      _captcha: 'false',
+      who: who || 'someone',
+      sent_at: now(),
+      page: location.href,
+    };
+    p['the idea in one breath'] = (state.fields.pitch?.value || DEFAULT_PITCH);
+    BLAKE_QS.forEach((d, i) => { p[`blake ${i + 1}. ${d.q}`] = (state.fields[d.id]?.value || '').trim() || '(not yet)'; });
+    CALLIE_QS.forEach((d, i) => { p[`callie ${i + 1}. ${d.q}`] = (state.fields[d.id]?.value || '').trim() || '(not yet)'; });
+    const ideas = Object.values(state.ideas).sort((a,b) => a.at < b.at ? -1 : 1).map(i => `[${i.by}] ${i.text}`);
+    p['ideas'] = ideas.length ? ideas.join('\n') : '(none yet)';
+    const steps = Object.values(state.steps).sort((a,b) => a.at < b.at ? -1 : 1).map(s => `${s.done ? '[done]' : '[open]'} ${s.text}`);
+    p['next steps'] = steps.length ? steps.join('\n') : '(none yet)';
+    return p;
+  }
+  async function send() {
+    const btn = $('#sendBtn'), msg = $('#sendMsg');
+    const answered = BLAKE_QS.filter(d => (state.fields[d.id]?.value || '').trim()).length;
+    btn.disabled = true; btn.textContent = 'sending';
+    msg.dataset.state = ''; msg.textContent = '';
     try {
-      const r = await fetch(`${API}/${BOARD}`, { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({ ops }) });
-      if (!r.ok) throw new Error('save failed');
-      adopt(await r.json());
-      setSync('ok', 'saved');
-    } catch {
-      pending = ops.concat(pending);
-      setSync('off', 'not syncing, will retry');
-      setTimeout(flush, 5000);
+      const r = await fetch(SEND_URL, { method:'POST', headers:{ 'content-type':'application/json', 'accept':'application/json' }, body: JSON.stringify(buildPayload()) });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok || String(j.success) === 'false') throw new Error(j.message || 'send failed');
+      lsSet('ane-sent', now());
+      msg.dataset.state = 'ok';
+      msg.textContent = answered === BLAKE_QS.length
+        ? 'Sent. All eight, which frankly nobody expected. Callie has it.'
+        : `Sent with ${answered} of 8 answered. Callie has it, and you can send again whenever more turns up.`;
+      btn.textContent = 'send again later';
+    } catch (e) {
+      // keep a mailto fallback so nothing is ever lost
+      const body = Object.entries(buildPayload()).filter(([k]) => !k.startsWith('_')).map(([k, v]) => `${k}\n${v}`).join('\n\n');
+      msg.dataset.state = 'bad';
+      msg.innerHTML = `That did not go through. Nothing is lost, it is still saved here. <a href="mailto:callierounds@gmail.com?subject=${encodeURIComponent('A New Earth answers')}&body=${encodeURIComponent(body).slice(0, 6000)}">Send it as a plain email instead</a> or try again in a minute.`;
+      btn.textContent = 'try again';
+    } finally {
+      btn.disabled = false;
     }
   }
-  async function poll() {
-    try {
-      const r = await fetch(`${API}/${BOARD}`, { cache:'no-store' });
-      if (!r.ok) throw new Error();
-      adopt(await r.json());
-      if (!pending.length) setSync('ok', online ? 'live' : 'live');
-      online = true;
-    } catch {
-      online = false;
-      setSync('off', 'offline, showing last copy');
-    }
-  }
-  function adopt(remote) {
-    if (!remote || !remote.fields) return;
-    // keep whatever is being typed right now
-    const keep = focused ? { id: focused, value: $(`[data-field="${focused}"]`)?.value } : null;
-    state = { fields: remote.fields || {}, ideas: remote.ideas || {}, steps: remote.steps || {} };
-    if (keep && state.fields[keep.id] && state.fields[keep.id].value !== keep.value) {
-      state.fields[keep.id] = { ...state.fields[keep.id], value: keep.value };
-    }
-    lsSet('ane-cache', JSON.stringify(state));
-    render();
-    if (remote.updated) $('#lastSaved').textContent = 'last change ' + ago(remote.updated);
-  }
+  $('#sendBtn').addEventListener('click', send);
 
   // ---------- build ----------
   function qCard(def, owner) {
@@ -478,7 +493,7 @@ footer{margin-top:80px;padding-top:22px;border-top:1px solid var(--line);color:v
       <article class="card idea" data-who="${esc(i.by)}">
         <p>${esc(i.text)}</p>
         <div class="meta"><span class="by" data-who="${esc(i.by)}"><i></i>${esc(i.by)} · ${ago(i.at)}</span>
-        ${i.by === who ? `<button class="btn ghost" type="button" data-del="${id}">remove</button>` : '<span></span>'}</div>
+        <button class="btn ghost" type="button" data-del="${id}">remove</button></div>
       </article>`).join('') : '<p class="empty">Nothing here yet. The first idea is always the worst one, so get it out of the way.</p>';
     // steps
     const steps = Object.entries(state.steps).sort((a,b) => (a[1].done - b[1].done) || (a[1].at < b[1].at ? -1 : 1));
@@ -495,9 +510,7 @@ footer{margin-top:80px;padding-top:22px;border-top:1px solid var(--line);color:v
   try { const c = lsGet('ane-cache'); if (c) state = Object.assign({ fields:{}, ideas:{}, steps:{} }, JSON.parse(c)); } catch {}
   render();
   $$('textarea[data-field]').forEach(autosize);
-  poll();
-  setInterval(() => { if (document.visibilityState === 'visible') poll(); }, POLL_MS);
-  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') poll(); });
+  const sent = lsGet('ane-sent'); if (sent) $('#sendMsg').textContent = 'Last sent to Callie ' + ago(sent) + '. Send again any time.';
 })();
 </script>
 </body>
